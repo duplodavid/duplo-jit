@@ -1,0 +1,29 @@
+name: Test Finish Release
+on:
+  workflow_dispatch:
+env:
+  git_user: duplo-bot
+  git_email: joe+github-bot@duplocloud.net
+jobs:
+  finish-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: master                 # Always finish releases from the "merged to" master
+          fetch-depth: 0
+          persist-credentials: false  # Needed so we can push with different credentials.
+                                      # NOTE: Pushing with different credentials allows admins to push protected branches.
+                                      # NOTE: Pushing with different credentials allow workflows to trigger from the push.
+
+      # FINISH THE RELEASE
+      - name: Initialize mandatory git config
+        run: |
+          git config --global user.name $git_user &&
+          git config --global user.email $git_email
+      - name: Finish gitflow release
+        id: finish-release
+        uses: duplocloud/ghactions-finish-gitflow-release@DUPLO-26240-regeneration
+        with:
+          github_token: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
